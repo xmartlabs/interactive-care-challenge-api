@@ -1,0 +1,12 @@
+version: '3'
+
+services:
+  web:
+    build: .
+    command: npm run build
+    command: npm run db:migrate
+    command: npm run start
+    volumes:
+      - .:/code
+    ports:
+      - "3000:3000"
