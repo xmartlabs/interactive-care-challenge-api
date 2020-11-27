@@ -1,9 +1,8 @@
-import QuestionUnit from "../models/QuestionUnit";
-
+import QuestionUnit from '../models/QuestionUnit'
 
 export default ({ unitType, title, introParagraph, items }: QuestionUnit) => ({
-  unitType,
-  title,
   introParagraph,
-  items
-});
+  items,
+  title,
+  unitType,
+})

@@ -1,10 +1,15 @@
-import Checklist from "../models/Checklist";
+import Checklist from '../models/Checklist'
 
-
-export default ({ unitType, title, introParagraph, items, additionalInfo }: Checklist) => ({
+export default ({
   unitType,
   title,
   introParagraph,
   items,
   additionalInfo,
-});
+}: Checklist) => ({
+  additionalInfo,
+  introParagraph,
+  items,
+  title,
+  unitType,
+})

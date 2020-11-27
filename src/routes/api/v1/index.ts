@@ -1,11 +1,12 @@
-import bodyParser from 'body-parser';
-import express from 'express';
-import patientRouter from '../../../user/PatientRouter';
+import bodyParser from 'body-parser'
+import express from 'express'
 
-const apiRouter = express.Router();
+import patientRouter from '../../../user/PatientRouter'
 
-apiRouter.use(bodyParser.json());
+const apiRouter = express.Router()
 
-apiRouter.use('/patients', patientRouter.router);
+apiRouter.use(bodyParser.json())
 
-export default apiRouter;
+apiRouter.use('/patients', patientRouter.router)
+
+export default apiRouter

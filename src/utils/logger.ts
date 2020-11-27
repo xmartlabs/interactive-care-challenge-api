@@ -1,3 +1,3 @@
-import PinoLogger from 'pino';
+import PinoLogger from 'pino'
 
-export default PinoLogger();
+export default PinoLogger()

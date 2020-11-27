@@ -1,86 +1,86 @@
-import Airtable from "airtable";
-
-import Patient from "../models/Patient";
-import CareUnit from "../models/CareUnit";
-import Checklist from "../models/Checklist";
-import Question from "../models/QuestionUnit";
-import Learning from "../models/LearningUnit";
-import UnitGroup from "../models/UnitGroup";
-
-import PatientSerializer from "./PatientSerializer";
-import ChecklistSerializer from "./ChecklistSerializer";
-import QuestionSerializer from "./QuestionUnitSerializer";
-import LearningSerializer from "./LearningUnitSerializer";
-import UnitGroupSerializer from "./UnitGroupSerializer";
+import CareUnit from '../models/CareUnit'
+import AirtableService from '../services/AirtableService'
+import ChecklistSerializer from './ChecklistSerializer'
+import LearningSerializer from './LearningUnitSerializer'
+import PatientSerializer from './PatientSerializer'
+import QuestionSerializer from './QuestionUnitSerializer'
+import UnitGroupSerializer from './UnitGroupSerializer'
 
 export class PatientRepository {
   public async findOne(id: string) {
-    var patientJourneys: CareUnit[] = [];
-    var base = new Airtable({apiKey: 'keyYrN3yQKoJaONxL'}).base('appe045srNuyKDshe');
+    try {
+      let patientJourneys: CareUnit[] = []
+      const patientUri = `/Patient/${id}`
 
-    base("Patient").find('recrn0kd9rPwqn3mV', function(err, patient) {
-      if (err) { console.error(err); return; }
+      const patientsResponse = await AirtableService.get(patientUri)
+      const journeyUnitsIds =
+        patientsResponse.data?.fields['Journey Units'] ?? []
 
-      for (const iterator of patient.get('Journey Units')) {
-        base('Care Unit').find(iterator, function(err, careUnit) {
-          if (err) { console.error(err); return; }
-          
-          var fields = careUnit._rawJson.fields;
+      for (const journeyUnitRecordId of journeyUnitsIds) {
+        const journeyUnitResponse = await AirtableService.get(
+          `/Care%20Unit/${journeyUnitRecordId}`,
+        )
+        const careUnitFields = journeyUnitResponse.data?.fields ?? undefined
+        let patientJourney
 
-          if (fields["Unit Type"] == "Learning"){
-            let patientJourney = LearningSerializer({
-              unitType: "Learning",
-              title: fields["Title"],
-              section1Text: fields["[LU] Section 1 - Text"],
-              section1Media: fields["[LU] Section 1 - Media"],
-              section2Text: fields["[LU] Section 2 - Text"],
-              section2Media: fields["[LU] Section 2 - Media"],
-              section3Text: fields["[LU] Section 3 - Text"],
-              section3Media: fields["[LU] Section 3 - Media"]
-            });
-            patientJourneys.push(patientJourney);
-          };
+        if (careUnitFields) {
+          if (careUnitFields['Unit Type'] === 'Learning') {
+            patientJourney = LearningSerializer({
+              section1Media: careUnitFields['[LU] Section 1 - Media'],
+              section1Text: careUnitFields['[LU] Section 1 - Text'],
+              section2Media: careUnitFields['[LU] Section 2 - Media'],
+              section2Text: careUnitFields['[LU] Section 2 - Text'],
+              section3Media: careUnitFields['[LU] Section 3 - Media'],
+              section3Text: careUnitFields['[LU] Section 3 - Text'],
+              title: careUnitFields.Title,
+              unitType: 'Learning',
+            })
+          }
 
-          if (fields["Unit Type"] == "Unit Group"){
-            let patientJourney = UnitGroupSerializer({
-              unitType: "Unit Group",
-              title: fields["Title"],
-              introParagraph: fields["[UG] Intro paragraph"],
-              subUnits: fields["[UG] Sub Units"]
-            });
-            patientJourneys.push(patientJourney);
-          };
+          if (careUnitFields['Unit Type'] === 'Unit Group') {
+            patientJourney = UnitGroupSerializer({
+              introParagraph: careUnitFields['[UG] Intro paragraph'],
+              subUnits: careUnitFields['[UG] Sub Units'],
+              title: careUnitFields.Title,
+              unitType: 'Unit Group',
+            })
+          }
 
-          if (fields["Unit Type"] == "Questions"){
-            let patientJourney = QuestionSerializer({
-              unitType: "Questions",
-              title: fields["Title"],
-              introParagraph: fields["[QU] Intro paragraph"],
-              items: fields["[QU] Items"]
-            });
-            patientJourneys.push(patientJourney);
-          };
+          if (careUnitFields['Unit Type'] === 'Questions') {
+            patientJourney = QuestionSerializer({
+              introParagraph: careUnitFields['[QU] Intro paragraph'],
+              items: careUnitFields['[QU] Items'],
+              title: careUnitFields.Title,
+              unitType: 'Questions',
+            })
+          }
 
-          if (fields["Unit Type"] == "Checklist"){
-            let patientJourney = ChecklistSerializer({
-              unitType: "Checklist",
-              title: fields["Title"],
-              introParagraph: fields["[CU] Intro paragraph"],
-              items: fields["[QU] Items"],
-              additionalInfo: fields["[QU] Additional Info"]
-            });
-            patientJourneys.push(patientJourney);
-          };
-        });
-      };
-      console.log(patientJourneys); // está retornando vacío
-      let finalPatient = PatientSerializer({
-        name: patient.fields["Name"],
-        id: patient.fields["Id"],
+          if (careUnitFields['Unit Type'] === 'Checklist') {
+            patientJourney = ChecklistSerializer({
+              additionalInfo: careUnitFields['[QU] Additional Info'],
+              introParagraph: careUnitFields['[CU] Intro paragraph'],
+              items: careUnitFields['[QU] Items'],
+              title: careUnitFields.Title,
+              unitType: 'Checklist',
+            })
+          }
+          patientJourneys.push(patientJourney)
+        }
+      }
+
+      const patient = PatientSerializer({
+        id: patientsResponse.data?.fields.Id ?? 'Test id',
         journeys: patientJourneys,
-      });
-    });
+        name: patientsResponse.data?.fields.Name ?? 'Test name',
+      })
+
+      return patient
+    } catch (error) {
+      return {
+        name: 'error',
+      }
+    }
   }
 }
 
-export default new PatientRepository();
+export default new PatientRepository()
