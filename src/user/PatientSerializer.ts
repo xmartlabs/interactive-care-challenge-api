@@ -1,8 +1,7 @@
 import Patient from '../models/Patient';
 
-export default ({ email, lastName, firstName, id }: Patient) => ({
-  email,
-  firstName,
+export default ({ name, journeys, id }: Patient) => ({
+  name,
+  journeys,
   id,
-  lastName,
 });

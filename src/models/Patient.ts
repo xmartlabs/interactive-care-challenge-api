@@ -1,15 +1,15 @@
+import CareUnit from "./CareUnit";
+
 export default class Patient {
-    public static fromJson({ firstName, lastName, email, id }: any) {
+    public static fromJson({ name, id, journeys }: any) {
       const user = new Patient();
-      user.firstName = firstName;
-      user.lastName = lastName;
-      user.email = email;
+      user.name = name;
       user.id = id;
+      user.journeys = journeys
       return user;
     }
 
     public id: number;
-    public firstName: string;
-    public lastName: string;
-    public email: string;
+    public name: string;
+    public journeys: CareUnit[];
 }
