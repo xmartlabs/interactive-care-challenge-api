@@ -1,4 +1,5 @@
 import CareUnit from './CareUnit'
+import Navigator from './Navigator'
 
 export default class Patient {
   public static fromJson({ name, id, journeys }: any) {
@@ -12,4 +13,5 @@ export default class Patient {
   public id: number
   public name: string
   public journeys: CareUnit[]
+  public navigator: Navigator
 }

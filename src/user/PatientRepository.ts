@@ -5,6 +5,7 @@ import LearningSerializer from './LearningUnitSerializer'
 import PatientSerializer from './PatientSerializer'
 import QuestionSerializer from './QuestionUnitSerializer'
 import UnitGroupSerializer from './UnitGroupSerializer'
+import NavigatorSerializer from './NavigatorSerializer'
 
 export class PatientRepository {
   public async findOne(id: string) {
@@ -13,6 +14,19 @@ export class PatientRepository {
       const patientUri = `/Patient/${id}`
 
       const patientsResponse = await AirtableService.get(patientUri)
+      
+      const navigatorId = patientsResponse.data?.fields['Navigator'] ?? []
+      const navigatorUri = `/Navigator/${navigatorId}`
+      const navigatorResponse = await AirtableService.get(navigatorUri)
+      const navigatorFields = navigatorResponse.data?.fields
+
+      //console.log(navigatorFields['Photo'][0]['url'])
+      let patientNavigator = NavigatorSerializer({
+        name: navigatorFields['Name'],
+        description: navigatorFields['Description'],
+        urlPhoto: navigatorFields['Photo'][0]['url'],
+      })
+
       const journeyUnitsIds =
         patientsResponse.data?.fields['Journey Units'] ?? []
 
@@ -72,6 +86,7 @@ export class PatientRepository {
         id: patientsResponse.data?.fields.Id ?? 'Test id',
         journeys: patientJourneys,
         name: patientsResponse.data?.fields.Name ?? 'Test name',
+        navigator: patientNavigator,
       })
 
       return patient
