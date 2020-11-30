@@ -4,7 +4,7 @@
   "description": "NodeJS & Typescript API ",
   "main": "dist/index.js",
   "scripts": {
-    "lint": "tslint -c tslint.json -p tsconfig.json --fix",
+    "lint": "eslint -c .eslintrc --fix",
     "tsc": "tsc",
     "build": "npm-run-all lint tsc",
     "dev": "concurrently -k -n ts,nodemon --inspect \"tsc -w\" \"nodemon  --inspect dist/index.js | pino-pretty\"",
