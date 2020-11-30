@@ -1,15 +1,17 @@
-export default class Patient {
-    public static fromJson({ firstName, lastName, email, id }: any) {
-      const user = new Patient();
-      user.firstName = firstName;
-      user.lastName = lastName;
-      user.email = email;
-      user.id = id;
-      return user;
-    }
+import CareUnit from './CareUnit'
+import Navigator from './Navigator'
 
-    public id: number;
-    public firstName: string;
-    public lastName: string;
-    public email: string;
+export default class Patient {
+  public static fromJson({ name, id, journeys }: any) {
+    const user = new Patient()
+    user.name = name
+    user.id = id
+    user.journeys = journeys
+    return user
+  }
+
+  public id: number
+  public name: string
+  public journeys: CareUnit[]
+  public navigator: Navigator
 }

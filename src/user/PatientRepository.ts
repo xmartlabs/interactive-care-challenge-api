@@ -1,42 +1,100 @@
-import Patient from "../models/Patient";
-import PatientSerializer from "./PatientSerializer";
+import CareUnit from '../models/CareUnit'
+import AirtableService from '../services/AirtableService'
+import ChecklistSerializer from './ChecklistSerializer'
+import LearningSerializer from './LearningUnitSerializer'
+import PatientSerializer from './PatientSerializer'
+import QuestionSerializer from './QuestionUnitSerializer'
+import UnitGroupSerializer from './UnitGroupSerializer'
+import NavigatorSerializer from './NavigatorSerializer'
 
 export class PatientRepository {
   public async findOne(id: string) {
-    // TODO: here should be the call to AIRTABLE.
-    // TODO: you could use the serializer to transform everything
-    let patient = PatientSerializer({ 
-        email: "email@email.com", 
-        lastName: "lastname", 
-        firstName:"firstName",
-        id: 12
+    try {
+      let patientJourneys: CareUnit[] = []
+      const patientUri = `/Patient/${id}`
+
+      const patientsResponse = await AirtableService.get(patientUri)
+      
+      const navigatorId = patientsResponse.data?.fields['Navigator'] ?? []
+      const navigatorUri = `/Navigator/${navigatorId}`
+      const navigatorResponse = await AirtableService.get(navigatorUri)
+      const navigatorFields = navigatorResponse.data?.fields
+
+      let patientNavigator = NavigatorSerializer({
+        name: navigatorFields['Name'],
+        description: navigatorFields['Description'],
+        urlPhoto: navigatorFields['Photo'][0]['url'],
       })
-      // REQUEST inicial
-      // PATIENT
-      // LISTA de RECORDS MODULOS.
-      // REQUEST
-      // LISTA de UNITS
-      // REQUEST
-      // const patientData
-      // modulesList = []
-      // for (const iterator of patient.modules) {
 
-      //   const moduleData = await (obtener data)
-      //   unitList = []
+      const journeyUnitsIds =
+        patientsResponse.data?.fields['Journey Units'] ?? []
 
-      //   for (const iterator of moduleData) {
-      //     const unitData = await (obtener unit)
-      //     unitList.push(unitData)
-      //   }
-      //   moduleData.units = unitsList
-      //   moduleList.push(moduleData)
-      // }
-      // patientData.modules = modulesList
+      for (const journeyUnitRecordId of journeyUnitsIds) {
+        const journeyUnitResponse = await AirtableService.get(
+          `/Care%20Unit/${journeyUnitRecordId}`,
+        )
+        const careUnitFields = journeyUnitResponse.data?.fields ?? undefined
+        let patientJourney
 
+        if (careUnitFields) {
+          if (careUnitFields['Unit Type'] === 'Learning') {
+            patientJourney = LearningSerializer({
+              section1Media: careUnitFields['[LU] Section 1 - Media'],
+              section1Text: careUnitFields['[LU] Section 1 - Text'],
+              section2Media: careUnitFields['[LU] Section 2 - Media'],
+              section2Text: careUnitFields['[LU] Section 2 - Text'],
+              section3Media: careUnitFields['[LU] Section 3 - Media'],
+              section3Text: careUnitFields['[LU] Section 3 - Text'],
+              title: careUnitFields.Title,
+              unitType: 'Learning',
+            })
+          }
 
-      // Armar un uno y mandar.
-    return patient
+          if (careUnitFields['Unit Type'] === 'Unit Group') {
+            patientJourney = UnitGroupSerializer({
+              introParagraph: careUnitFields['[UG] Intro paragraph'],
+              subUnits: careUnitFields['[UG] Sub Units'],
+              title: careUnitFields.Title,
+              unitType: 'Unit Group',
+            })
+          }
+
+          if (careUnitFields['Unit Type'] === 'Questions') {
+            patientJourney = QuestionSerializer({
+              introParagraph: careUnitFields['[QU] Intro paragraph'],
+              items: careUnitFields['[QU] Items'],
+              title: careUnitFields.Title,
+              unitType: 'Questions',
+            })
+          }
+
+          if (careUnitFields['Unit Type'] === 'Checklist') {
+            patientJourney = ChecklistSerializer({
+              additionalInfo: careUnitFields['[QU] Additional Info'],
+              introParagraph: careUnitFields['[CU] Intro paragraph'],
+              items: careUnitFields['[QU] Items'],
+              title: careUnitFields.Title,
+              unitType: 'Checklist',
+            })
+          }
+          patientJourneys.push(patientJourney)
+        }
+      }
+
+      const patient = PatientSerializer({
+        id: patientsResponse.data?.fields.Id ?? 'Test id',
+        journeys: patientJourneys,
+        name: patientsResponse.data?.fields.Name ?? 'Test name',
+        navigator: patientNavigator,
+      })
+
+      return patient
+    } catch (error) {
+      return {
+        name: 'error',
+      }
+    }
   }
 }
 
-export default new PatientRepository();
+export default new PatientRepository()

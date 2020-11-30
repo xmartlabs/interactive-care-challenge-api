@@ -7,13 +7,15 @@
     "lint": "tslint -c tslint.json -p tsconfig.json --fix",
     "tsc": "tsc",
     "build": "npm-run-all lint tsc",
-    "dev": "concurrently -k -n ts,nodemon \"tsc -w\" \"nodemon dist/index.js | pino-pretty\"",
+    "dev": "concurrently -k -n ts,nodemon --inspect \"tsc -w\" \"nodemon  --inspect dist/index.js | pino-pretty\"",
     "start": "node dist/index.js",
     "test": "mocha --require ts-node/register tests/**/**/*.*"
   },
   "license": "MIT",
   "dependencies": {
     "@hapi/joi": "^15.1.0",
+    "airtable": "^0.10.1",
+    "axios": "^0.21.0",
     "body-parser": "^1.19.0",
     "bull": "^3.10.0",
     "cors": "^2.8.5",
@@ -25,6 +27,7 @@
     "reflect-metadata": "^0.1.13"
   },
   "devDependencies": {
+    "@types/airtable": "^0.8.1",
     "@types/bull": "^3.5.15",
     "@types/chai": "^4.1.7",
     "@types/cors": "^2.8.5",
@@ -49,7 +52,15 @@
     "sinon-chai": "^3.3.0",
     "supertest": "^4.0.2",
     "ts-node": "^8.3.0",
-    "tslint": "^5.18.0",
-    "typescript": "^3.5.2"
+    "typescript": "^3.5.2",
+    "eslint": "6.5.1",
+    "eslint-config-prettier": "6.10.0",
+    "eslint-plugin-prettier": "3.1.2",
+    "eslint-plugin-simple-import-sort": "5.0.1",
+    "eslint-plugin-sort-keys-fix": "1.1.0",
+    "@react-native-community/eslint-config": "1.0.0",
+    "@typescript-eslint/eslint-plugin": "2.25.0",
+    "@typescript-eslint/parser": "2.25.0",
+    "prettier": "2.0.2"
   }
 }

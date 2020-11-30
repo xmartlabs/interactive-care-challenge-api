@@ -1,8 +1,9 @@
-import Patient from '../models/Patient';
+import Patient from '../models/Patient'
+import Navigator from '../models/Navigator'
 
-export default ({ email, lastName, firstName, id }: Patient) => ({
-  email,
-  firstName,
+export default ({ name, journeys, navigator, id }: Patient) => ({
   id,
-  lastName,
-});
+  journeys,
+  name,
+  navigator,
+})
