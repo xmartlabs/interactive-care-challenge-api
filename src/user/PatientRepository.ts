@@ -20,7 +20,6 @@ export class PatientRepository {
       const navigatorResponse = await AirtableService.get(navigatorUri)
       const navigatorFields = navigatorResponse.data?.fields
 
-      //console.log(navigatorFields['Photo'][0]['url'])
       let patientNavigator = NavigatorSerializer({
         name: navigatorFields['Name'],
         description: navigatorFields['Description'],
