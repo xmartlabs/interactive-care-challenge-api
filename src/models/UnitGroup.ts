@@ -1,4 +1,5 @@
 import CareUnit from './CareUnit'
+import { SubUnit } from './SubUnit'
 
 export default class UnitGroup extends CareUnit {
   public static fromJson({ unitType, title, introParagraph, subUnits }: any) {
@@ -14,5 +15,5 @@ export default class UnitGroup extends CareUnit {
   public unitType: string
   public title: string
   public introParagraph: string
-  public subUnits: string
+  public subUnits: SubUnit[]
 }
