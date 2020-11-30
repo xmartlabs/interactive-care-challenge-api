@@ -2,10 +2,11 @@ import CareUnit from '../models/CareUnit'
 import AirtableService from '../services/AirtableService'
 import ChecklistSerializer from './ChecklistSerializer'
 import LearningSerializer from './LearningUnitSerializer'
+import NavigatorSerializer from './NavigatorSerializer'
 import PatientSerializer from './PatientSerializer'
 import QuestionSerializer from './QuestionUnitSerializer'
+import { SubUnitsSerializer } from './subUnitsSerializer'
 import UnitGroupSerializer from './UnitGroupSerializer'
-import NavigatorSerializer from './NavigatorSerializer'
 
 export class PatientRepository {
   public async findOne(id: string) {
@@ -14,16 +15,16 @@ export class PatientRepository {
       const patientUri = `/Patient/${id}`
 
       const patientsResponse = await AirtableService.get(patientUri)
-      
+
       const navigatorId = patientsResponse.data?.fields['Navigator'] ?? []
       const navigatorUri = `/Navigator/${navigatorId}`
       const navigatorResponse = await AirtableService.get(navigatorUri)
       const navigatorFields = navigatorResponse.data?.fields
 
       let patientNavigator = NavigatorSerializer({
-        name: navigatorFields['Name'],
-        description: navigatorFields['Description'],
-        urlPhoto: navigatorFields['Photo'][0]['url'],
+        description: navigatorFields.Description,
+        name: navigatorFields.Name,
+        urlPhoto: navigatorFields.Photo[0].url,
       })
 
       const journeyUnitsIds =
@@ -51,9 +52,20 @@ export class PatientRepository {
           }
 
           if (careUnitFields['Unit Type'] === 'Unit Group') {
+            const subUnits = careUnitFields['[UG] Sub Units'] ?? []
+            let parsedSubunits = []
+            for (const subUnit of subUnits) {
+              const subUnitResponse = await AirtableService.get(
+                `/Care%20Unit/${subUnit}`,
+              )
+              const serializedSubunit = SubUnitsSerializer(
+                subUnitResponse.data.fields,
+              )
+              parsedSubunits.push(serializedSubunit)
+            }
             patientJourney = UnitGroupSerializer({
               introParagraph: careUnitFields['[UG] Intro paragraph'],
-              subUnits: careUnitFields['[UG] Sub Units'],
+              subUnits: parsedSubunits,
               title: careUnitFields.Title,
               unitType: 'Unit Group',
             })
