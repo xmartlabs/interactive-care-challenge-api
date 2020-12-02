@@ -74,7 +74,7 @@ export class PatientRepository {
           if (careUnitFields['Unit Type'] === 'Questions') {
             patientJourney = QuestionSerializer({
               introParagraph: careUnitFields['[QU] Intro paragraph'],
-              items: careUnitFields['[QU] Items'],
+              items: careUnitFields['[QU] Items'].split('\n'),
               title: careUnitFields.Title,
               unitType: 'Questions',
             })
@@ -82,9 +82,9 @@ export class PatientRepository {
 
           if (careUnitFields['Unit Type'] === 'Checklist') {
             patientJourney = ChecklistSerializer({
-              additionalInfo: careUnitFields['[QU] Additional Info'],
+              additionalInfo: careUnitFields['[CU] Additional Info'],
               introParagraph: careUnitFields['[CU] Intro paragraph'],
-              items: careUnitFields['[QU] Items'],
+              items: careUnitFields['[CU] Items'].split('\n'),
               title: careUnitFields.Title,
               unitType: 'Checklist',
             })
