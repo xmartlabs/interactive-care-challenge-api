@@ -21,6 +21,6 @@ export default class Checklist extends CareUnit {
   public unitType: string
   public title: string
   public introParagraph: string
-  public items: string
+  public items: string[]
   public additionalInfo: string
 }
