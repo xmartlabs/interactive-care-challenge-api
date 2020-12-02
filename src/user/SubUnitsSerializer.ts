@@ -10,8 +10,14 @@ export const SubUnitsSerializer = (subUnitData: any): SubUnit => {
   let sections: Section[] = []
 
   for (const sectionKey of sectionsKeys) {
+    let sectionContent
+    if (sectionKey.includes('Text')) {
+      sectionContent = subUnitData[sectionKey]
+    }else{
+      sectionContent = subUnitData[sectionKey][0]['url']
+    }
     sections.push({
-      content: subUnitData[sectionKey],
+      content: sectionContent,
       type: sectionKey.includes('Text') ? 'Text' : 'Media',
     })
   }
