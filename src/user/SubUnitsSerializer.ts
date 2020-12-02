@@ -13,9 +13,7 @@ export const SubUnitsSerializer = (subUnitData: any): SubUnit => {
     let sectionContent
     if (sectionKey.includes('Text')) {
       sectionContent = subUnitData[sectionKey]
-      //console.log(subUnitData[sectionKey])
     }else{
-      //console.log(subUnitData[sectionKey][0]['url'])
       sectionContent = subUnitData[sectionKey][0]['url']
     }
     sections.push({
