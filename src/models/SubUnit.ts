@@ -1,3 +1,6 @@
+import Checklist from './Checklist'
+import QuestionUnit from './QuestionUnit'
+
 export interface MediaContent {
   filename: string
   id: string
@@ -21,14 +24,26 @@ export class SubUnit {
   public title: string
   public sections: Section[]
   public name: string
+  public introParagraph?: string
+  public items?: QuestionUnit['items']
+  public additionalInfo: Checklist['additionalInfo']
 
-  public static fromJson({ unitType, title, items, name }: any) {
-    const questionUnit = new SubUnit()
-    questionUnit.name = name
-    questionUnit.unitType = unitType
-    questionUnit.title = title
-    questionUnit.sections = items
+  public static fromJson({
+    unitType,
+    title,
+    sections,
+    name,
+    introParagraph,
+    items,
+  }: any) {
+    const subUnit = new SubUnit()
+    subUnit.name = name
+    subUnit.unitType = unitType
+    subUnit.title = title
+    subUnit.sections = sections
+    subUnit.introParagraph = introParagraph
+    subUnit.items = items
 
-    return questionUnit
+    return subUnit
   }
 }

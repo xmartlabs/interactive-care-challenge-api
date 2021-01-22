@@ -104,6 +104,7 @@ export class PatientRepository {
     } catch (error) {
       return {
         name: 'error',
+        error
       }
     }
   }
